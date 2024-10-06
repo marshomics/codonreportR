@@ -14,16 +14,30 @@ def main():
     parser_usage.add_argument('-m', '--metadata_file', required=True, help='Path to the metadata file')
     parser_usage.add_argument('-f', '--fasta_dir', required=True, help='Directory containing FASTA files')
     parser_usage.add_argument('-o', '--output_dir', required=True, help='Output directory for codon counts')
+    parser_usage.add_argument('-c', '--combined_output', required=True, help='Path for the combined codon usage file')
+
+    # Define the 'ribosomal' sub-command
+    parser_ribosomal = subparsers.add_parser('ribosomal', help='Run ribosomal protein analysis')
+    parser_ribosomal.add_argument('-i', '--input_files', required=True, nargs='+',
+                                  help='Input FASTA files to process')
+    parser_ribosomal.add_argument('-o', '--output_dir', required=True,
+                                  help='Output directory for hmmsearch results')
+    parser_ribosomal.add_argument('-hmm', '--hmm_file', required=True,
+                                  help='Path to the .hmm file')
+    parser_ribosomal.add_argument('--cpu', type=int, default=1,
+                                  help='Number of CPU cores to use (default: 1)')
 
     args = parser.parse_args()
 
+    script_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'scripts')
+
     if args.command == 'usage':
-        # Path to the R script inside the 'scripts' directory
-        script_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'scripts')
+        # Paths to the scripts inside the 'scripts' directory
         r_script = os.path.join(script_dir, 'usage.R')
+        combining_script = os.path.join(script_dir, 'combine_codons.py')
 
         # Build the command to run the R script
-        cmd = [
+        r_cmd = [
             'Rscript',
             r_script,
             '-m', args.metadata_file,
@@ -33,12 +47,54 @@ def main():
 
         # Execute the R script
         try:
-            subprocess.run(cmd, check=True)
+            print("Running codon usage analysis...")
+            subprocess.run(r_cmd, check=True)
         except subprocess.CalledProcessError as e:
             print(f"An error occurred while running the R script: {e}", file=sys.stderr)
             sys.exit(1)
+
+        # Build the command to run the combining script
+        combine_cmd = [
+            'python3',
+            os.path.join(script_dir, 'combine_codons.py'),
+            '-i', args.output_dir,
+            '-o', args.combined_output
+        ]
+
+        # Execute the combining script
+        try:
+            print("Combining codon count files...")
+            subprocess.run(combine_cmd, check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"An error occurred while combining codon count files: {e}", file=sys.stderr)
+            sys.exit(1)
+
+    elif args.command == 'ribosomal':
+        # Path to the ribosomal script
+        ribosomal_script = os.path.join(script_dir, 'ribosomal.py')
+
+        # Build the command to run the ribosomal script
+        ribosomal_cmd = [
+            'python3',
+            ribosomal_script,
+            '-i'
+        ] + args.input_files + [
+            '-o', args.output_dir,
+            '-hmm', args.hmm_file,
+            '--cpu', str(args.cpu)
+        ]
+
+        # Execute the ribosomal script
+        try:
+            print("Running ribosomal protein analysis...")
+            subprocess.run(ribosomal_cmd, check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"An error occurred while running the ribosomal script: {e}", file=sys.stderr)
+            sys.exit(1)
+
     else:
         parser.print_help()
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()
