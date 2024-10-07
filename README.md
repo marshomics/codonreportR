@@ -165,7 +165,7 @@ Python Packages:
 Install using:
 
 ```
-    pip install pandas argparse
+pip install pandas argparse
 ```
 
 R Packages:
@@ -179,10 +179,10 @@ R Packages:
 Install using R:
 
 ```
-    install.packages(c("optparse", "data.table"))
-    if (!requireNamespace("BiocManager", quietly = TRUE))
-        install.packages("BiocManager")
-    BiocManager::install(c("coRdon", "Biostrings", "IRanges"))
+install.packages(c("optparse", "data.table"))
+if (!requireNamespace("BiocManager", quietly = TRUE))
+	install.packages("BiocManager")
+BiocManager::install(c("coRdon", "Biostrings", "IRanges"))
 ```
 
 External Tools:
@@ -190,7 +190,7 @@ External Tools:
 •	HMMER3: hmmsearch must be installed and accessible in your PATH.
 
 ```
-    sudo apt-get install hmmer
+sudo apt-get install hmmer
 ```
 
-Compute_RSCU_gene.pyz: Place in programs/ directory.
+•	Compute_RSCU_gene.pyz: Place in programs/ directory.
