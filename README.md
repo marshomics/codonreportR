@@ -59,7 +59,7 @@ CodonReporter is a comprehensive bioinformatics tool designed to analyze codon u
 
 	•	Install required R packages by running R and executing:
 
-    ```R
+    ```
     install.packages(c("optparse", "data.table"))
     if (!requireNamespace("BiocManager", quietly = TRUE))
         install.packages("BiocManager")
@@ -79,9 +79,9 @@ CodonReporter is a comprehensive bioinformatics tool designed to analyze codon u
 
 The codonreporter script is the main entry point and supports multiple sub-commands:
 
-    ```
-    ./codonreporter [command] [options]
-    ```
+ ```
+ ./codonreporter [command] [options]
+ ```
 
 ### `usage` Command
 
@@ -157,37 +157,40 @@ Arguments:
 
 ## Dependencies
 
-	Python Packages:
+Python Packages:
+ 
 	•	pandas
 	•	argparse
 
 Install using:
 
-    ```
+```
     pip install pandas argparse
-    ```
+```
 
-	R Packages:
+R Packages:
+
 	•	optparse
 	•	data.table
 	•	coRdon
 	•	Biostrings
 	•	IRanges
 
-    Install using R:
+Install using R:
 
-    ```
+```
     install.packages(c("optparse", "data.table"))
     if (!requireNamespace("BiocManager", quietly = TRUE))
         install.packages("BiocManager")
     BiocManager::install(c("coRdon", "Biostrings", "IRanges"))
-    ```
+```
 
-	External Tools:
-	•	HMMER3: hmmsearch must be installed and accessible in your PATH.
+External Tools:
 
-    ```
+•	HMMER3: hmmsearch must be installed and accessible in your PATH.
+
+```
     sudo apt-get install hmmer
-    ```
+```
 
-    Compute_RSCU_gene.pyz: Place in programs/ directory.
+Compute_RSCU_gene.pyz: Place in programs/ directory.
