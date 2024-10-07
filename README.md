@@ -44,7 +44,7 @@ CodonReporter is a comprehensive bioinformatics tool designed to analyze codon u
 
 1. **Clone the Repository**:
 
-   ```bash
+   ```
    git clone https://github.com/yourusername/codonreporter.git
    cd codonreporter
    ```
@@ -53,7 +53,7 @@ CodonReporter is a comprehensive bioinformatics tool designed to analyze codon u
 	•	Ensure that python3 and Rscript are available in your PATH.
 	•	Install required Python packages:
 
-    ```bash
+    ```
     pip install pandas
     ```
 
@@ -68,7 +68,7 @@ CodonReporter is a comprehensive bioinformatics tool designed to analyze codon u
 
 3.	**Set Execution Permissions**:
 
-    ```bash
+    ```
     chmod +x codonreporter
     chmod +x scripts/*.R
     chmod +x scripts/*.py
@@ -89,10 +89,10 @@ Description: Performs codon usage analysis on a set of FASTA files.
 
 Arguments:
 
-	•	`-m`, `--metadata_file`: Path to the metadata file containing filenames to process.
-	•	`-f`, `--fasta_dir`: Directory containing input FASTA files.
-	•	`-o`, `--output_dir`: Output directory for codon counts.
-	•	`-c`, `--combined_output`: Path to the combined codon usage output file.
+	•	-m, --metadata_file: Path to the metadata file containing filenames to process.
+	•	-f, --fasta_dir: Directory containing input FASTA files.
+	•	-o, --output_dir: Output directory for codon counts.
+	•	-c, --combined_output: Path to the combined codon usage output file.
 
 ### `ribosomal` Command
 
@@ -100,13 +100,13 @@ Description: Identifies ribosomal protein genes using hmmsearch, combines output
 
 Arguments:
 
-	•	`-i`, `--input_files`: Input FASTA files to process (accepts multiple files).
-	•	`-o`, `--output_dir`: Output directory for hmmsearch results.
-	•	`-hmm`, `--hmm_file`: Path to the .hmm file.
-	•	`--cpu`: Number of CPU cores to use (default: 1).
-	•	`-c`, `--combined_output`: Path for the combined hmmsearch output file.
-	•	`-f`, `--filtered_output`: Path for the filtered combined output file.
-	•	`--bitscore`: Bitscore threshold for filtering (default: 25.0).
+	•	-i, --input_files: Input FASTA files to process (accepts multiple files).
+	•	-o, --output_dir: Output directory for hmmsearch results.
+	•	-hmm, --hmm_file: Path to the .hmm file.
+	•	--cpu: Number of CPU cores to use (default: 1).
+	•	-c, --combined_output: Path for the combined hmmsearch output file.
+	•	-f, --filtered_output: Path for the filtered combined output file.
+	•	--bitscore: Bitscore threshold for filtering (default: 25.0).
 
 ### `cai` Command
 
@@ -114,10 +114,10 @@ Description: Calculates the Codon Adaptation Index (CAI) for genes using ribosom
 
 Arguments:
 
-	•	`-i`, `--input_dir`: Input directory containing FASTA files.
-	•	`-hmm`, `--hmm_table_path`: Path to the filtered HMM table.
-	•	`-m`, `--metadata_table_path`: Path to the metadata table.
-	•	`-o`, `--output_dir`: Output directory for CAI results.
+	•	-i, --input_dir: Input directory containing FASTA files.
+	•	-hmm, --hmm_table_path: Path to the filtered HMM table.
+	•	-m, --metadata_table_path: Path to the metadata table.
+	•	-o, --output_dir: Output directory for CAI results.
 
 ### `rscu` Command
 
@@ -125,12 +125,12 @@ Description: Computes RSCU values and calculates median values for both ribosoma
 
 Arguments:
 
-	•	`-ri`, `--ribosomal_input_dir`: Input directory with ribosomal protein FASTA files.
-	•	`-ni`, `--non_ribosomal_input_dir`: Input directory with non-ribosomal protein FASTA files.
-	•	`-ro`, `--ribosomal_output_dir`: Output directory for ribosomal RSCU results.
-	•	`-no`, `--non_ribosomal_output_dir`: Output directory for non-ribosomal RSCU results.
-	•	`-rm`, `--ribosomal_median_output`: Output file for ribosomal median values.
-	•	`-nm`, `--non_ribosomal_median_output`: Output file for non-ribosomal median values.
+	•	-ri, --ribosomal_input_dir: Input directory with ribosomal protein FASTA files.
+	•	-ni, --non_ribosomal_input_dir: Input directory with non-ribosomal protein FASTA files.
+	•	-ro, --ribosomal_output_dir: Output directory for ribosomal RSCU results.
+	•	-no, --non_ribosomal_output_dir: Output directory for non-ribosomal RSCU results.
+	•	-rm, --ribosomal_median_output: Output file for ribosomal median values.
+	•	-nm, --non_ribosomal_median_output: Output file for non-ribosomal median values.
 
 ## Outputs
 
@@ -163,7 +163,7 @@ Arguments:
 
 Install using:
 
-    ```bash
+    ```
     pip install pandas argparse
     ```
 
@@ -176,7 +176,7 @@ Install using:
 
     Install using R:
 
-    ```R
+    ```
     install.packages(c("optparse", "data.table"))
     if (!requireNamespace("BiocManager", quietly = TRUE))
         install.packages("BiocManager")
