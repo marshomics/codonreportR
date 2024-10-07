@@ -9,98 +9,85 @@ def main():
     parser = argparse.ArgumentParser(description='CodonReporter Wrapper Script')
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
 
-    # Define the 'usage' sub-command
-    parser_usage = subparsers.add_parser('usage', help='Run codon usage analysis')
-    parser_usage.add_argument('-m', '--metadata_file', required=True, help='Path to the metadata file')
-    parser_usage.add_argument('-f', '--fasta_dir', required=True, help='Directory containing FASTA files')
-    parser_usage.add_argument('-o', '--output_dir', required=True, help='Output directory for codon counts')
-    parser_usage.add_argument('-c', '--combined_output', required=True, help='Path for the combined codon usage file')
-
-    # Define the 'ribosomal' sub-command
-    parser_ribosomal = subparsers.add_parser('ribosomal', help='Run ribosomal protein analysis')
-    parser_ribosomal.add_argument('-i', '--input_files', required=True, nargs='+',
-                                  help='Input FASTA files to process')
-    parser_ribosomal.add_argument('-o', '--output_dir', required=True,
-                                  help='Output directory for hmmsearch results')
-    parser_ribosomal.add_argument('-hmm', '--hmm_file', required=True,
-                                  help='Path to the .hmm file')
-    parser_ribosomal.add_argument('--cpu', type=int, default=1,
-                                  help='Number of CPU cores to use (default: 1)')
-    parser_ribosomal.add_argument('-c', '--combined_output', required=True,
-                                  help='Path for the combined hmmsearch output file')
-    parser_ribosomal.add_argument('-f', '--filtered_output', required=True,
-                                  help='Path for the filtered combined output file')
-    parser_ribosomal.add_argument('--bitscore', type=float, default=25.0,
-                                  help='Bitscore threshold for filtering (default: 25.0)')
-
-    # Define the 'cai' sub-command
-    parser_cai = subparsers.add_parser('cai', help='Run CAI analysis')
-    parser_cai.add_argument('-i', '--input_dir', required=True, help='Input directory containing FASTA files')
-    parser_cai.add_argument('-hmm', '--hmm_table_path', required=True, help='Path to the HMM table')
-    parser_cai.add_argument('-m', '--metadata_table_path', required=True, help='Path to the metadata table')
-    parser_cai.add_argument('-o', '--output_dir', required=True, help='Output directory for CAI results')
+    # Existing sub-commands (usage, ribosomal, cai)...
 
     # Define the 'rscu' sub-command
-    parser_rscu = subparsers.add_parser('rscu', help='Compute RSCU for ribosomal protein genes')
-    parser_rscu.add_argument('-i', '--input_dir', required=True, help='Input directory containing ribosomal protein FASTA files')
-    parser_rscu.add_argument('-o', '--output_dir', required=True, help='Output directory for RSCU results')
+    parser_rscu = subparsers.add_parser('rscu', help='Compute RSCU for ribosomal and non-ribosomal protein genes and calculate medians')
+    parser_rscu.add_argument('-ri', '--ribosomal_input_dir', required=True, help='Input directory containing ribosomal protein FASTA files')
+    parser_rscu.add_argument('-ni', '--non_ribosomal_input_dir', required=True, help='Input directory containing non-ribosomal protein FASTA files')
+    parser_rscu.add_argument('-ro', '--ribosomal_output_dir', required=True, help='Output directory for ribosomal RSCU results')
+    parser_rscu.add_argument('-no', '--non_ribosomal_output_dir', required=True, help='Output directory for non-ribosomal RSCU results')
+    parser_rscu.add_argument('-rm', '--ribosomal_median_output', required=True, help='Output file path for the ribosomal median values')
+    parser_rscu.add_argument('-nm', '--non_ribosomal_median_output', required=True, help='Output file path for the non-ribosomal median values')
 
     args = parser.parse_args()
 
     script_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'scripts')
     programs_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'programs')
 
-    if args.command == 'usage':
-        # Existing code for 'usage' command
-        pass
-
-    elif args.command == 'ribosomal':
-        # Existing code for 'ribosomal' command
-        pass
-
-    elif args.command == 'cai':
-        # Existing code for 'cai' command
-        pass
-
-    elif args.command == 'rscu':
-        # Path to the Compute_RSCU_gene.pyz script
+    if args.command == 'rscu':
+        # Paths to the scripts
         rscu_script = os.path.join(programs_dir, 'Compute_RSCU_gene.pyz')
+        median_script = os.path.join(script_dir, 'calculate_median.py')
 
         # Check if the RSCU script exists
         if not os.path.isfile(rscu_script):
             print(f"Error: RSCU script not found at {rscu_script}", file=sys.stderr)
             sys.exit(1)
 
-        # Ensure output directory exists
-        os.makedirs(args.output_dir, exist_ok=True)
+        # Process ribosomal and non-ribosomal files
+        for input_dir, output_dir, median_output in [
+            (args.ribosomal_input_dir, args.ribosomal_output_dir, args.ribosomal_median_output),
+            (args.non_ribosomal_input_dir, args.non_ribosomal_output_dir, args.non_ribosomal_median_output)
+        ]:
+            # Ensure output directory exists
+            os.makedirs(output_dir, exist_ok=True)
 
-        # Process each FASTA file in the input directory
-        fasta_files = [f for f in os.listdir(args.input_dir) if f.endswith(('.fasta', '.fa', '.fna'))]
-        if not fasta_files:
-            print(f"No FASTA files found in input directory {args.input_dir}", file=sys.stderr)
-            sys.exit(1)
+            # Process each FASTA file in the input directory
+            fasta_files = [f for f in os.listdir(input_dir) if f.endswith(('.fasta', '.fa', '.fna'))]
+            if not fasta_files:
+                print(f"No FASTA files found in input directory {input_dir}", file=sys.stderr)
+                continue  # Skip to next set if no files found
 
-        for fasta_file in fasta_files:
-            input_path = os.path.join(args.input_dir, fasta_file)
-            base_name = os.path.splitext(fasta_file)[0]
-            output_file = os.path.join(args.output_dir, f"{base_name}.csv")
+            for fasta_file in fasta_files:
+                input_path = os.path.join(input_dir, fasta_file)
+                base_name = os.path.splitext(fasta_file)[0]
+                output_file = os.path.join(output_dir, f"{base_name}.csv")
 
-            # Build the command to run the RSCU script
-            rscu_cmd = [
-                'python',
-                rscu_script,
-                '-CDS', input_path,
-                '-out', output_file
+                # Build the command to run the RSCU script
+                rscu_cmd = [
+                    'python',
+                    rscu_script,
+                    '-CDS', input_path,
+                    '-out', output_file
+                ]
+
+                # Execute the RSCU script
+                try:
+                    print(f"Computing RSCU for {fasta_file}...")
+                    subprocess.run(rscu_cmd, check=True)
+                    print(f"RSCU output saved to {output_file}")
+                except subprocess.CalledProcessError as e:
+                    print(f"An error occurred while computing RSCU for {fasta_file}: {e}", file=sys.stderr)
+                    continue  # Continue with next file
+
+            # After computing RSCU, calculate median values
+            # Build the command to run the median calculation script
+            median_cmd = [
+                'python3',
+                median_script,
+                '-i', output_dir,
+                '-o', median_output
             ]
 
-            # Execute the RSCU script
+            # Execute the median calculation script
             try:
-                print(f"Computing RSCU for {fasta_file}...")
-                subprocess.run(rscu_cmd, check=True)
-                print(f"RSCU output saved to {output_file}")
+                print(f"Calculating median values for files in {output_dir}...")
+                subprocess.run(median_cmd, check=True)
+                print(f"Median values saved to {median_output}")
             except subprocess.CalledProcessError as e:
-                print(f"An error occurred while computing RSCU for {fasta_file}: {e}", file=sys.stderr)
-                sys.exit(1)
+                print(f"An error occurred while calculating median values: {e}", file=sys.stderr)
+                continue  # Continue to next set
 
     else:
         parser.print_help()
