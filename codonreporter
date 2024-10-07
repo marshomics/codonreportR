@@ -26,6 +26,22 @@ def main():
                                   help='Path to the .hmm file')
     parser_ribosomal.add_argument('--cpu', type=int, default=1,
                                   help='Number of CPU cores to use (default: 1)')
+    parser_ribosomal.add_argument('-c', '--combined_output', required=True,
+                                  help='Path for the combined hmmsearch output file')
+    parser_ribosomal.add_argument('-f', '--filtered_output', required=True,
+                                  help='Path for the filtered combined output file')
+    parser_ribosomal.add_argument('--bitscore', type=float, default=25.0,
+                                  help='Bitscore threshold for filtering (default: 25.0)')
+    parser_ribosomal.add_argument('--split_input_dir', required=True,
+                                  help='Input directory containing FASTA files for splitting')
+    parser_ribosomal.add_argument('--ribosomal_table', required=True,
+                                  help='Path to the ribosomal table (filtered combined output)')
+    parser_ribosomal.add_argument('--metadata_table', required=True,
+                                  help='Path to the metadata table')
+    parser_ribosomal.add_argument('--rp_output_dir', required=True,
+                                  help='Output directory for ribosomal protein sequences')
+    parser_ribosomal.add_argument('--non_rp_output_dir', required=True,
+                                  help='Output directory for non-ribosomal protein sequences')
 
     args = parser.parse_args()
 
@@ -81,7 +97,15 @@ def main():
         ] + args.input_files + [
             '-o', args.output_dir,
             '-hmm', args.hmm_file,
-            '--cpu', str(args.cpu)
+            '--cpu', str(args.cpu),
+            '-c', args.combined_output,
+            '-f', args.filtered_output,
+            '--bitscore', str(args.bitscore),
+            '--split_input_dir', args.split_input_dir,
+            '--ribosomal_table', args.ribosomal_table,
+            '--metadata_table', args.metadata_table,
+            '--rp_output_dir', args.rp_output_dir,
+            '--non_rp_output_dir', args.non_rp_output_dir
         ]
 
         # Execute the ribosomal script
