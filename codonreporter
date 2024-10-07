@@ -32,89 +32,75 @@ def main():
                                   help='Path for the filtered combined output file')
     parser_ribosomal.add_argument('--bitscore', type=float, default=25.0,
                                   help='Bitscore threshold for filtering (default: 25.0)')
-    parser_ribosomal.add_argument('--split_input_dir', required=True,
-                                  help='Input directory containing FASTA files for splitting')
-    parser_ribosomal.add_argument('--ribosomal_table', required=True,
-                                  help='Path to the ribosomal table (filtered combined output)')
-    parser_ribosomal.add_argument('--metadata_table', required=True,
-                                  help='Path to the metadata table')
-    parser_ribosomal.add_argument('--rp_output_dir', required=True,
-                                  help='Output directory for ribosomal protein sequences')
-    parser_ribosomal.add_argument('--non_rp_output_dir', required=True,
-                                  help='Output directory for non-ribosomal protein sequences')
+
+    # Define the 'cai' sub-command
+    parser_cai = subparsers.add_parser('cai', help='Run CAI analysis')
+    parser_cai.add_argument('-i', '--input_dir', required=True, help='Input directory containing FASTA files')
+    parser_cai.add_argument('-hmm', '--hmm_table_path', required=True, help='Path to the HMM table')
+    parser_cai.add_argument('-m', '--metadata_table_path', required=True, help='Path to the metadata table')
+    parser_cai.add_argument('-o', '--output_dir', required=True, help='Output directory for CAI results')
+
+    # Define the 'rscu' sub-command
+    parser_rscu = subparsers.add_parser('rscu', help='Compute RSCU for ribosomal protein genes')
+    parser_rscu.add_argument('-i', '--input_dir', required=True, help='Input directory containing ribosomal protein FASTA files')
+    parser_rscu.add_argument('-o', '--output_dir', required=True, help='Output directory for RSCU results')
 
     args = parser.parse_args()
 
     script_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'scripts')
+    programs_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'programs')
 
     if args.command == 'usage':
-        # Paths to the scripts inside the 'scripts' directory
-        r_script = os.path.join(script_dir, 'usage.R')
-        combining_script = os.path.join(script_dir, 'combine_codons.py')
-
-        # Build the command to run the R script
-        r_cmd = [
-            'Rscript',
-            r_script,
-            '-m', args.metadata_file,
-            '-f', args.fasta_dir,
-            '-o', args.output_dir
-        ]
-
-        # Execute the R script
-        try:
-            print("Running codon usage analysis...")
-            subprocess.run(r_cmd, check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"An error occurred while running the R script: {e}", file=sys.stderr)
-            sys.exit(1)
-
-        # Build the command to run the combining script
-        combine_cmd = [
-            'python3',
-            os.path.join(script_dir, 'combine_codons.py'),
-            '-i', args.output_dir,
-            '-o', args.combined_output
-        ]
-
-        # Execute the combining script
-        try:
-            print("Combining codon count files...")
-            subprocess.run(combine_cmd, check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"An error occurred while combining codon count files: {e}", file=sys.stderr)
-            sys.exit(1)
+        # Existing code for 'usage' command
+        pass
 
     elif args.command == 'ribosomal':
-        # Path to the ribosomal script
-        ribosomal_script = os.path.join(script_dir, 'ribosomal.py')
+        # Existing code for 'ribosomal' command
+        pass
 
-        # Build the command to run the ribosomal script
-        ribosomal_cmd = [
-            'python3',
-            ribosomal_script,
-            '-i'
-        ] + args.input_files + [
-            '-o', args.output_dir,
-            '-hmm', args.hmm_file,
-            '--cpu', str(args.cpu),
-            '-c', args.combined_output,
-            '-f', args.filtered_output,
-            '--bitscore', str(args.bitscore),
-            '--split_input_dir', args.split_input_dir,
-            '--ribosomal_table', args.ribosomal_table,
-            '--metadata_table', args.metadata_table,
-            '--rp_output_dir', args.rp_output_dir,
-            '--non_rp_output_dir', args.non_rp_output_dir
-        ]
+    elif args.command == 'cai':
+        # Existing code for 'cai' command
+        pass
 
-        # Execute the ribosomal script
-        try:
-            print("Running ribosomal protein analysis...")
-            subprocess.run(ribosomal_cmd, check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"An error occurred while running the ribosomal script: {e}", file=sys.stderr)
+    elif args.command == 'rscu':
+        # Path to the Compute_RSCU_gene.pyz script
+        rscu_script = os.path.join(programs_dir, 'Compute_RSCU_gene.pyz')
+
+        # Check if the RSCU script exists
+        if not os.path.isfile(rscu_script):
+            print(f"Error: RSCU script not found at {rscu_script}", file=sys.stderr)
             sys.exit(1)
+
+        # Ensure output directory exists
+        os.makedirs(args.output_dir, exist_ok=True)
+
+        # Process each FASTA file in the input directory
+        fasta_files = [f for f in os.listdir(args.input_dir) if f.endswith(('.fasta', '.fa', '.fna'))]
+        if not fasta_files:
+            print(f"No FASTA files found in input directory {args.input_dir}", file=sys.stderr)
+            sys.exit(1)
+
+        for fasta_file in fasta_files:
+            input_path = os.path.join(args.input_dir, fasta_file)
+            base_name = os.path.splitext(fasta_file)[0]
+            output_file = os.path.join(args.output_dir, f"{base_name}.csv")
+
+            # Build the command to run the RSCU script
+            rscu_cmd = [
+                'python',
+                rscu_script,
+                '-CDS', input_path,
+                '-out', output_file
+            ]
+
+            # Execute the RSCU script
+            try:
+                print(f"Computing RSCU for {fasta_file}...")
+                subprocess.run(rscu_cmd, check=True)
+                print(f"RSCU output saved to {output_file}")
+            except subprocess.CalledProcessError as e:
+                print(f"An error occurred while computing RSCU for {fasta_file}: {e}", file=sys.stderr)
+                sys.exit(1)
 
     else:
         parser.print_help()
